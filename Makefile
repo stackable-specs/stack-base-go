@@ -15,7 +15,7 @@ install: install-tools ## Install development tools and git hooks
 install-tools: ## Install pinned Go development tools
 	go install golang.org/x/tools/cmd/goimports@latest
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-	go install golang.org/x/vuln/cmd/govulncheck@latest
+	go install golang.org/x/vuln/cmd/govulncheck@v1.1.4
 
 fmt: ## Format Go files (spec: go.md:2-3)
 	gofmt -w .
