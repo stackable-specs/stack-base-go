@@ -1,43 +1,64 @@
-# stack-base-go Makefile
-# Each command references its governing spec
+APP := bin/app
+COVERAGE_FILE := coverage.out
+COVERAGE_THRESHOLD := 80
+GO_PACKAGES := ./...
 
-.PHONY: help test lint fmt vet build clean coverage
+.PHONY: help install install-tools fmt fmt-check vet lint test coverage vuln build docker-build compose-config tidy check clean
 
-help: ## Show this help
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
+help: ## Show available commands
+	@awk 'BEGIN {FS = ":.*## "}; /^[a-zA-Z_-]+:.*## / {printf "%-16s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-# Quality gates (spec: quality/unit-testing.md)
-test: ## Run tests with race detection (spec: go.md:12, unit-testing.md)
-	go test -race ./...
+install: install-tools ## Install development tools and git hooks
+	pre-commit install
+	pre-commit install --hook-type commit-msg
 
-coverage: ## Run tests with coverage report (spec: unit-testing.md)
-	go test -race -coverprofile=coverage.out ./...
-	go tool cover -html=coverage.out -o coverage.html
-	@echo "Coverage report: coverage.html"
+install-tools: ## Install pinned Go development tools
+	go install golang.org/x/tools/cmd/goimports@latest
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+	go install golang.org/x/vuln/cmd/govulncheck@latest
 
-# Linting (spec: language/go.md)
-fmt: ## Format code with gofmt (spec: go.md:2)
+fmt: ## Format Go files (spec: go.md:2-3)
 	gofmt -w .
 	goimports -w .
 
+fmt-check: ## Check Go formatting without modifying files
+	@test -z "$$(gofmt -l .)" || { gofmt -l .; exit 1; }
+	@test -z "$$(goimports -l .)" || { goimports -l .; exit 1; }
+
 vet: ## Run go vet (spec: go.md:15)
-	go vet ./...
+	go vet $(GO_PACKAGES)
 
 lint: ## Run golangci-lint (spec: go.md:16)
-	golangci-lint run ./...
+	golangci-lint run $(GO_PACKAGES)
 
-# Build (spec: delivery/docker.md)
-build: ## Build binary
-	go build -o bin/app ./src
+test: ## Run tests with race detection (spec: go.md:12)
+	go test -race $(GO_PACKAGES)
 
-clean: ## Clean build artifacts
-	rm -rf bin/
-	rm -f coverage.out coverage.html
+coverage: ## Enforce application line coverage (spec: unit-testing.md:15)
+	go test -race -coverpkg=./internal/... -coverprofile=$(COVERAGE_FILE) ./tests/...
+	@coverage=$$(go tool cover -func=$(COVERAGE_FILE) | awk '/^total:/ {gsub("%", "", $$3); print $$3}'); \
+	awk -v coverage="$$coverage" -v threshold="$(COVERAGE_THRESHOLD)" 'BEGIN { \
+		printf "Total coverage: %.1f%% (minimum: %.1f%%)\n", coverage, threshold; \
+		exit !(coverage >= threshold) \
+	}'
 
-# Development
-tidy: ## Tidy modules (spec: go.md:17)
+vuln: ## Scan dependencies for known vulnerabilities
+	govulncheck $(GO_PACKAGES)
+
+build: ## Build the service binary
+	CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o $(APP) ./src
+
+docker-build: ## Build the production container with BuildKit
+	DOCKER_BUILDKIT=1 docker build --tag stack-base-go:local .
+
+compose-config: ## Validate Compose configuration
+	docker compose config --quiet
+
+tidy: ## Tidy and verify Go modules (spec: go.md:17)
 	go mod tidy
+	git diff --exit-code -- go.mod go.sum
 
-# Pre-commit checks (all specs)
-check: fmt vet lint test ## Run all quality gates
-	@echo "All checks passed"
+check: fmt-check vet lint test coverage vuln ## Run all local quality gates
+
+clean: ## Remove generated artifacts
+	rm -rf bin $(COVERAGE_FILE) coverage.html
