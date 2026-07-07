@@ -1,4 +1,4 @@
-# ADR-004: Unit Testing as Quality Gate
+# ADR-006: Unit Testing as Quality Gate
 
 ## Status
 
@@ -61,6 +61,9 @@ This decision is enforced by:
 
 ## References
 
+- **internal** [ADR-001](001-five-command-interface.md) — Five Command Project Interface
+- **internal** [ADR-003](003-go-language.md) — Go as Primary Language
+- **internal** [ADR-005](005-development-practices.md) — Development Practices
 - **spec**: `docs/specs/quality/unit-testing.md`
 - **spec**: `docs/specs/language/go.md` (rules 12-14)
 - **external**: https://go.dev/doc/tutorial/add-a-test

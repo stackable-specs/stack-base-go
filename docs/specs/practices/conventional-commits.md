@@ -1,6 +1,7 @@
 ---
 id: conventional-commits
 layer: practices
+type: spec
 extends: []
 ---
 

@@ -1,6 +1,7 @@
 ---
 id: go
 layer: language
+type: spec
 extends: []
 ---
 

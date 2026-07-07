@@ -1,6 +1,7 @@
 ---
 id: tdd
 layer: practices
+type: spec
 extends: []
 ---
 
