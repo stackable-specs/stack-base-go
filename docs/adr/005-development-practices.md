@@ -1,4 +1,4 @@
-# ADR-003: Development Practices (MADR, BDR, TDD, Git, Conventional Commits)
+# ADR-005: Development Practices (MADR, BDR, TDD, Git, Conventional Commits)
 
 ## Status
 
@@ -62,6 +62,8 @@ This decision is enforced by:
 
 ## References
 
+- **internal** [ADR-001](001-five-command-interface.md) — Five Command Project Interface
+- **internal** [ADR-002](002-adopt-make-for-command-runner.md) — Adopt Make for Command Runner
 - **spec**: `docs/specs/practices/madr.md`
 - **spec**: `docs/specs/practices/bdr.md`
 - **spec**: `docs/specs/practices/tdd.md`

@@ -2,11 +2,40 @@ APP := bin/app
 COVERAGE_FILE := coverage.out
 COVERAGE_THRESHOLD := 80
 GO_PACKAGES := ./...
+PYTHON ?= python3
 
-.PHONY: help install install-tools fmt fmt-check vet lint test coverage vuln build docker-build compose-config tidy check clean
+.DEFAULT_GOAL := help
+
+.PHONY: help build run check health clean install install-tools fmt fmt-check vet lint test coverage vuln docker-build compose-config tidy
 
 help: ## Show available commands
-	@awk 'BEGIN {FS = ":.*## "}; /^[a-zA-Z_-]+:.*## / {printf "%-16s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@echo "Core commands:"
+	@echo "  make build    Build the service binary"
+	@echo "  make run      Run the service"
+	@echo "  make check    Run all local quality gates"
+	@echo "  make health   Show repository health"
+	@echo "  make clean    Remove generated artifacts"
+	@echo
+	@echo "Utility commands:"
+	@awk 'BEGIN {FS = ":.*## "}; /^[a-zA-Z_-]+:.*## / && $$1 !~ /^(help|build|run|check|health|clean)$$/ {printf "  make %-12s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+
+build: ## Core: build the service binary (spec: interface/commands.md)
+	@CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o $(APP) ./src
+	@echo "Project is ready to run."
+
+run: build ## Core: run the service (spec: interface/commands.md)
+	@echo "Project is running."
+	@./$(APP)
+
+check: fmt-check vet lint test coverage vuln ## Core: run all local quality gates (spec: interface/commands.md)
+	@echo "PASS"
+
+health: ## Core: show repository health (spec: interface/commands.md)
+	@$(PYTHON) scripts/health.py
+
+clean: ## Core: remove generated artifacts (spec: interface/commands.md)
+	@rm -rf bin $(COVERAGE_FILE) coverage.html
+	@echo "Project is clean."
 
 install: install-tools ## Install development tools and git hooks
 	pre-commit install
@@ -45,9 +74,6 @@ coverage: ## Enforce application line coverage (spec: unit-testing.md:15)
 vuln: ## Scan dependencies for known vulnerabilities
 	govulncheck $(GO_PACKAGES)
 
-build: ## Build the service binary
-	CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o $(APP) ./src
-
 docker-build: ## Build the production container with BuildKit
 	DOCKER_BUILDKIT=1 docker build --tag stack-base-go:local .
 
@@ -57,8 +83,3 @@ compose-config: ## Validate Compose configuration
 tidy: ## Tidy and verify Go modules (spec: go.md:17)
 	go mod tidy
 	git diff --exit-code -- go.mod go.sum
-
-check: fmt-check vet lint test coverage vuln ## Run all local quality gates
-
-clean: ## Remove generated artifacts
-	rm -rf bin $(COVERAGE_FILE) coverage.html

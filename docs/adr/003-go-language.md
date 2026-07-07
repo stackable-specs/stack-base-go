@@ -1,4 +1,4 @@
-# ADR-001: Go as Primary Language
+# ADR-003: Go as Primary Language
 
 ## Status
 
@@ -67,6 +67,8 @@ This decision is enforced by:
 
 ## References
 
+- **internal** [ADR-001](001-five-command-interface.md) — Five Command Project Interface
+- **internal** [ADR-002](002-adopt-make-for-command-runner.md) — Adopt Make for Command Runner
 - **spec**: `docs/specs/language/go.md`
 - **external**: https://go.dev/doc/effective_go
 - **external**: https://google.github.io/styleguide/go/

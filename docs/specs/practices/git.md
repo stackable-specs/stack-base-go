@@ -1,6 +1,7 @@
 ---
 id: git
 layer: practices
+type: spec
 extends: []
 ---
 
