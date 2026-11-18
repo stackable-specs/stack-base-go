@@ -1,4 +1,4 @@
-# ADR-002: Docker and GitHub Actions for Delivery
+# ADR-004: Docker and GitHub Actions for Delivery
 
 ## Status
 
@@ -63,6 +63,9 @@ This decision is enforced by:
 
 ## References
 
+- **internal** [ADR-001](001-five-command-interface.md) — Five Command Project Interface
+- **internal** [ADR-002](002-adopt-make-for-command-runner.md) — Adopt Make for Command Runner
+- **internal** [ADR-003](003-go-language.md) — Go as Primary Language
 - **spec**: `docs/specs/delivery/docker.md`
 - **spec**: `docs/specs/delivery/github-actions.md`
 - **external**: https://docs.github.com/en/actions

@@ -5,22 +5,28 @@ Go base template following the stackable-specs methodology.
 ## Architecture
 
 Layered specifications where each spec answers exactly one question about the system:
+- **Interface** (commands.md): Five-command project interface
 - **Language** (go.md): Go idioms, formatting, module hygiene
 - **Practices** (madr.md, bdr.md, tdd.md, git.md, conventional-commits.md): Workflow and decision records
 - **Quality** (unit-testing.md): Test scope and coverage
 - **Security** (dependency-management.md): Dependency policy
 - **Delivery** (docker.md, github-actions.md): Container and CI/CD conventions
 
+Foundational ADRs:
+- **ADR-001**: Five Command Project Interface
+- **ADR-002**: Adopt Make for Command Runner
+
 ## Key Commands
 
 | Command | Description | Spec Reference |
 |---------|-------------|----------------|
-| `make test` | Run tests with race detection | `go.md:12`, `unit-testing.md` |
-| `make lint` | Run golangci-lint | `go.md:16` |
-| `make fmt` | Format with gofmt + goimports | `go.md:2-3` |
-| `make vet` | Run go vet | `go.md:15` |
-| `make build` | Build binary | `docker.md` |
-| `make check` | All quality gates | All specs |
+| `make build` | Build the service binary | `commands.md`, ADR-001 |
+| `make run` | Build and run the service | `commands.md`, ADR-001 |
+| `make check` | All quality gates | `commands.md`, `command-verification.md` |
+| `make health` | Repository health summary | `commands.md` |
+| `make clean` | Remove generated artifacts | `commands.md` |
+
+Utility targets include `make test`, `make lint`, `make fmt`, `make vet`, `make coverage`, and `make vuln`.
 
 ## Quality Gates
 
@@ -40,15 +46,19 @@ docs/specs/
 ├── delivery/
 │   ├── docker.md
 │   └── github-actions.md
+├── interface/
+│   └── commands.md
 ├── language/
 │   └── go.md
 ├── practices/
+│   ├── command-workflow.md
 │   ├── bdr.md
 │   ├── conventional-commits.md
 │   ├── git.md
 │   ├── madr.md
 │   └── tdd.md
 ├── quality/
+│   ├── command-verification.md
 │   └── unit-testing.md
 └── security/
     └── dependency-management.md
@@ -56,7 +66,7 @@ docs/specs/
 
 ## Workflow
 
-1. Check relevant specs before making changes
+1. Check relevant specs before making changes, starting with the foundational command specs
 2. Write tests first (TDD: `practices/tdd.md`)
 3. Run quality gates before committing (`make check`)
 4. Reference specs in commit messages and PR descriptions
@@ -67,6 +77,8 @@ Map spec rules to enforcement:
 
 | Spec Rule | Enforcement |
 |-----------|-------------|
+| `commands.md` | Five primary Make targets |
+| `command-verification.md` | CI five-command validation |
 | `go.md:2` | `gofmt` in pre-commit + CI |
 | `go.md:3` | `goimports` in pre-commit + CI |
 | `go.md:12` | `go test -race` in CI |

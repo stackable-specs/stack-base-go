@@ -1,6 +1,7 @@
 ---
 id: github-actions
 layer: delivery
+type: spec
 extends: []
 ---
 

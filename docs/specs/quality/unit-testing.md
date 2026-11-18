@@ -1,6 +1,7 @@
 ---
 id: unit-testing
 layer: quality
+type: spec
 extends: []
 ---
 

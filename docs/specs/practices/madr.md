@@ -1,6 +1,7 @@
 ---
 id: madr
 layer: practices
+type: spec
 extends: []
 ---
 

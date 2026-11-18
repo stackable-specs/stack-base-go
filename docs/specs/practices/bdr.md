@@ -1,6 +1,7 @@
 ---
 id: bdr
 layer: practices
+type: spec
 extends: []
 ---
 

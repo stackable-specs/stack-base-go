@@ -1,6 +1,7 @@
 ---
 id: dependency-management
 layer: security
+type: spec
 extends: []
 ---
 

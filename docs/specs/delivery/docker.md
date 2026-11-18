@@ -1,6 +1,7 @@
 ---
 id: docker
 layer: delivery
+type: spec
 extends: []
 ---
 
